@@ -1,0 +1,19 @@
+.button {
+    -fx-font-weight: bold;
+    -fx-background-color: black; /* Black background */
+    -fx-text-fill: white;       /* White text */
+    -fx-border-color: #444;   /* Dark gray border (for separation) */
+    -fx-border-width: 1px;
+    -fx-border-radius: 0;      /* No rounded corners */
+    -fx-background-radius: 0;  /* No rounded corners */
+    -fx-background-insets: 0;
+    -fx-padding: 5px 10px;
+}
+
+.button:hover {
+    -fx-background-color: #222; /* Slightly lighter black on hover */
+}
+
+.button:pressed {
+    -fx-background-color: #333; /* Slightly darker on press */
+}
