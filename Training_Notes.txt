@@ -1,0 +1,54 @@
+>> Things also changed and tested across multiple models and epochs, main params and dataset aside:
+- Dropout rate:
+Disables some neurons to avoid overfitting and distribute weights more so they don't depend on each other
+For LSTMs this worked pretty well, even high dropout rates let me reach 70% acc on the training set without hurting performance on test and validation sets
+For ANNs, a small dropout rate (<0.1) would wipe out all progress and have me start from scratch, but with little progress
+
+- Batch size:
+Speed aside, the higher it was the more it generalised and worked on test sets, and if lower to some degree it made a lot of progress on the training set
+Too low and edge cases would make it not work as well in general
+
+- Weight decay:
+Mainly to prevent weights from becoming too large, helped in preventing overfitting (or sudden bad performance on test sets) but halted progress on the training set at too high values
+
+- Learning rate:
+Too large and the model gets stuck since every change has a large effect, had to be decreased overtime when progress/accuracy seemed to stop or go up and down, meaning it needed finer updates to the weights, but too low and there'd be 0 progress
+
+Also had to be raised when batch size was increased (since less updates would happen in general)
+And I lowered it initially when increasing dropout rates to make sure the model doesn't suddenly change all weights in big strides
+
+- Attention:
+I implemented additive attention for the bidirectional LSTM at some point to help it with sequence length and consistency with questions (especially when a question asks about two things), although I couldn't see a clear change in results, in practise it performed better when I asked a second question within the sentence (When did something happen 'and' where it was)
+
+I also believe it helped with the test set's perplexity score staying stable as training set accuracy went up:
+No attention -> 70% training set accuracy, 5 perplexity -> 30% test set accuracy but 1000+ perplexity
+Attention -> Same stats but 400-500 perplexity (so in a way, less surprised by data/more confident in it)
+
+>> Evaluation
+We used accuracy, top-k accuracy and perplexity
+
+- Accuracy, we only have a few options with auto-complete and being accurate in general is a good enough indication
+- Top-k accuracy is because realistically, auto-complete gives many options, if one of them is a hit then it's good enough
+- Perplexity, the model's confidence in a way, or its coherence, being sure a word is supposed to come next or not, we had it predict a continuation a sentence after each epoch, and initially it'd have high perplexity and very low probabilities for its predictions (<0.01), but the longer it trained, the lower its perplexity score and the higher the probability values
+
+We measured them on the training set as well as the test and validation set each epoch to compare them
+
+>> Other notes
+- Each epoch took between 5m to 30m depending on model and dataset size
+
+Starting accuracy:
+- The LSTM usually started with around 27% accuracy on all sets, whereas the ANN always started with around 23%
+
+Peak accuracy on test sets:
+- The peak the LSTM models reached on the test and validation sets was around 31% with 50% accuracy on the training set, while at 70%+ accuracy it settled around 29%
+
+- The peak for ANN models was 27% with 30% accuracy on the training set (so little learnt in reality), at max accuracy it was 21% vs 70%, the better it became at the training set the much worse it was on the others
+
+Perplexity:
+- Lowest it was for the training set was 4, for LSTMs the test and validation sets would be around 400-1000 by then across most runs, for ANNs, they'd reach values in the tens or hundreds of thousands at that point, extremely low confidence
+
+Goal:
+As high accuracy/low perplexity as possible without hurting performance on test sets, so we'd see what the max values were for the test sets, and try to hover around it as the model gets better on the training set
+
+There's no reason to only seek good values on the test sets and go for lower accuracy on training, while it might generalise better on paper, it still means it barely learnt much and would perform worse overall, the datasets had a lot of repetition by nature (all questions would start with keywords like what, when, where), the point is to complete the sentence and go beyond it
+
